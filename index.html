@@ -56,7 +56,8 @@
             const rows = data.split('\n').map(row => row.split(','));
             const headers = rows[0];
             const results = rows.slice(1).filter(row => 
-                row[3].toLowerCase().includes(searchTextA) && row[4].toLowerCase().includes(searchTextB)
+                row[3] && row[3].toLowerCase().includes(searchTextA) &&
+                row[4] && row[4].toLowerCase().includes(searchTextB)
             );
 
             const resultsHeader = document.getElementById('results-header');
