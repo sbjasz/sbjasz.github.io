@@ -42,8 +42,8 @@
 
 <script>
     async function searchCSV() {
-        const searchTextA = document.getElementById('search-input-a').value.toLowerCase();
-        const searchTextB = document.getElementById('search-input-b').value.toLowerCase();
+        const searchTextA = document.getElementById('search-input-a').value;
+        const searchTextB = document.getElementById('search-input-b').value;
         const message = document.getElementById('message');
         message.textContent = '搜索中...';
 
@@ -56,8 +56,8 @@
             const rows = data.split('\n').map(row => row.split(','));
             const headers = rows[0];
             const results = rows.slice(1).filter(row => 
-                row[3] && row[3].toLowerCase().includes(searchTextA) &&
-                row[4] && row[4].toLowerCase().includes(searchTextB)
+                row[3] && row[3] === searchTextA &&
+                row[4] && row[4] === searchTextB
             );
 
             const resultsHeader = document.getElementById('results-header');
