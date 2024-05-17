@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV 多条件搜索</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #results {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #results th, #results td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        #results th {
+            background-color: #f2f2f2;
+        }
+        /* 弹窗样式 */
+        #popup {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div id="popup">源排名文件来自网络，本人进行整合处理，如有侵权请联系QQ：192797445删除</div>
+
+<h1>CSV 文件多条件搜索</h1>
+<div>
+    <input type="text" id="search-input-a" placeholder="输入A框搜索内容">
+    <input type="text" id="search-input-b" placeholder="输入B框搜索内容">
+    <button onclick="searchCSV()">搜索</button>
+</div>
+<p id="message"></p>
+
+<table id="results">
+    <thead>
+        <tr id="results-header"></tr>
+    </thead>
+    <tbody id="results-body"></tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.js"></script>
+<script src="encrypted-data.js"></script>
+<script>
+    // 显示弹窗并在5秒后隐藏
+    window.onload = function() {
+        const popup = document.getElementById('popup');
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 5000);
+    };
+
+    // 解密密钥
+    const secretKey = 'your-secret-key';
+
+    // 解密 CSV 数据
+    const decryptedCSVData = CryptoJS.AES.decrypt(encryptedCSVData, secretKey).toString(CryptoJS.enc.Utf8);
+    const csvData = decryptedCSVData.split('\n').map(row => row.split(','));
+
+    function searchCSV() {
+        const searchTextA = document.getElementById('search-input-a').value;
+        const searchTextB = document.getElementById('search-input-b').value;
+        const message = document.getElementById('message');
+        message.textContent = '搜索中...';
+
+        try {
+            const headers = csvData[0];
+            const results = csvData.slice(1).filter(row => 
+                row[3] && row[3] === searchTextA &&
+                row[4] && row[4] === searchTextB
+            );
+
+            const resultsHeader = document.getElementById('results-header');
+            const resultsBody = document.getElementById('results-body');
+
+            resultsHeader.innerHTML = '';
+            resultsBody.innerHTML = '';
+
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                resultsHeader.appendChild(th);
+            });
+
+            results.forEach(row => {
+                const tr = document.createElement('tr');
+                row.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                resultsBody.appendChild(tr);
+            });
+
+            if (results.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = headers.length;
+                td.textContent = '未找到匹配的结果。';
+                tr.appendChild(td);
+                resultsBody.appendChild(tr);
+            }
+
+            message.textContent = '搜索完成。';
+        } catch (error) {
+            message.textContent = `发生错误: ${error.message}`;
+        }
+    }
+</script>
+
+</body>
+</html>
