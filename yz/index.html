@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV 多条件搜索</title>
+    <title>成绩查询系统</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,11 +42,11 @@
 
 <div id="popup">源排名文件来自网络，本人进行整合处理，如有侵权请联系QQ：192797445删除</div>
 
-<h1>CSV 文件多条件搜索</h1>
+<h1>【吉安一中】【2024高二下学期期中考试】【24年4月】</h1>
 <div>
-    <input type="text" id="search-input-a" placeholder="输入A框搜索内容">
-    <input type="text" id="search-input-b" placeholder="输入B框搜索内容">
-    <button onclick="searchCSV()">搜索</button>
+    <input type="text" id="search-input-a" placeholder="姓名">
+    <input type="text" id="search-input-b" placeholder="准考证号">
+    <button onclick="searchCSV()">查询</button>
 </div>
 <p id="message"></p>
 
@@ -114,7 +114,7 @@
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
                 td.colSpan = headers.length;
-                td.textContent = '未找到匹配的结果。';
+                td.textContent = '未找到匹配的结果，请核实你的姓名和考号是否输入准确。';
                 tr.appendChild(td);
                 resultsBody.appendChild(tr);
             }
