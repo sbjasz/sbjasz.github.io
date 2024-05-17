@@ -36,6 +36,20 @@
             max-width: 600px;
             text-align: center;
         }
+        /* 按钮样式 */
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -46,7 +60,7 @@
 <div>
     <input type="text" id="search-input-a" placeholder="姓名">
     <input type="text" id="search-input-b" placeholder="准考证号">
-    <button onclick="searchCSV()">查询</button>
+    <button class="button" onclick="searchCSV()">查询</button>
 </div>
 <p id="message"></p>
 
@@ -56,6 +70,11 @@
     </thead>
     <tbody id="results-body"></tbody>
 </table>
+
+<!-- 添加返回主页按钮 -->
+<div>
+    <button class="button" onclick="returnHome()">返回主页</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.js"></script>
 <script src="encrypted-data.js"></script>
@@ -123,6 +142,10 @@
         } catch (error) {
             message.textContent = `发生错误: ${error.message}`;
         }
+    }
+
+    function returnHome() {
+        window.location.href = 'index.html';
     }
 </script>
 
