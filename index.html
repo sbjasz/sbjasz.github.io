@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>吉安市一中 4月期中考试 高二 成绩查询</title>
+    <title>CSV 多条件搜索</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,15 +21,32 @@
         #results th {
             background-color: #f2f2f2;
         }
+        /* 弹窗样式 */
+        #popup {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-<h1>吉安市一中 4月期中考试 高二 成绩查询</h1>
+<div id="popup">源排名文件来自网络，本人进行整合处理，如有侵权请联系QQ：192797445删除</div>
+
+<h1>CSV 文件多条件搜索</h1>
 <div>
-    <input type="text" id="search-input-a" placeholder="姓名">
-    <input type="text" id="search-input-b" placeholder="准考证号">
-    <button onclick="searchCSV()">查询</button>
+    <input type="text" id="search-input-a" placeholder="输入A框搜索内容">
+    <input type="text" id="search-input-b" placeholder="输入B框搜索内容">
+    <button onclick="searchCSV()">搜索</button>
 </div>
 <p id="message"></p>
 
@@ -41,6 +58,14 @@
 </table>
 
 <script>
+    // 显示弹窗并在5秒后隐藏
+    window.onload = function() {
+        const popup = document.getElementById('popup');
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 5000);
+    };
+
     async function searchCSV() {
         const searchTextA = document.getElementById('search-input-a').value;
         const searchTextB = document.getElementById('search-input-b').value;
