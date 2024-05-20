@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成绩查询系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #results {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        #results th, #results td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        #results th {
+            background-color: #f2f2f2;
+        }
+        /* 弹窗样式 */
+        #popup, #result-popup, #result-popup-2-12, #custom-range-popup, #error-popup {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+        /* 按钮样式 */
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="popup">源排名文件来自网络，本人进行整合处理，如有侵权请联系QQ：192797445删除</div>
+<div id="result-popup" style="display:none;"></div>
+<div id="result-popup-2-12" style="display:none;"></div>
+<div id="custom-range-popup" style="display:none;"></div>
+<div id="error-popup" style="display:none;"></div>
+
+<h1>【吉安三中】【2024高二下学期期中考试（上进）（文）】【24年4月】</h1>
+<div>
+    <input type="text" id="search-input-a" placeholder="姓名">
+    <input type="text" id="search-input-b" placeholder="准考证号">
+    <button class="button" onclick="searchCSV()">查询</button>
+</div>
+<p id="message"></p>
+
+<table id="results">
+    <thead>
+        <tr id="results-header"></tr>
+    </thead>
+    <tbody id="results-body"></tbody>
+</table>
+
+<!-- 添加计算总分按钮 -->
+<div>
+    <button class="button" onclick="calculateTop10Percent()">计算总分前10%</button>
+    <button class="button" onclick="calculate2To12Percent()">计算总分后2%-12%</button>
+</div>
+
+<!-- 添加计算总分自定义区间按钮和输入框 -->
+<div>
+    <input type="text" id="percent-input-start" placeholder="开始百分数">
+    <input type="text" id="percent-input-end" placeholder="结束百分数">
+    <button class="button" onclick="calculateCustomRange()">计算总分自定义区间</button>
+</div>
+
+<!-- 答案内容 -->
+<div>
+    <a href="/da/lk/202404/G2/稳派" class="button">联考答案（考试结束|已公布）</a>
+</div>
+
+
+<!-- 返回主页按钮移动到页面底部 -->
+<div>
+    <button class="button" onclick="returnHome()">返回主页</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.js"></script>
+<script src="encrypted-data.js"></script>
+<script>
+    // 显示弹窗并在5秒后隐藏
+    window.onload = function() {
+        const popup = document.getElementById('popup');
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 5000);
+    };
+
+    // 解密密钥
+    const secretKey = 'your-secret-key';
+
+    // 解密 CSV 数据
+    const decryptedCSVData = CryptoJS.AES.decrypt(encryptedCSVData, secretKey).toString(CryptoJS.enc.Utf8);
+    const csvData = decryptedCSVData.split('\n').map(row => row.split(','));
+
+    function searchCSV() {
+        const searchTextA = document.getElementById('search-input-a').value;
+        const searchTextB = document.getElementById('search-input-b').value;
+        const message = document.getElementById('message');
+        message.textContent = '搜索中...';
+
+        try {
+            const headers = csvData[0];
+            const results = csvData.slice(1).filter(row => 
+                row[3] && row[3] === searchTextA &&
+                row[4] && row[4] === searchTextB
+            );
+
+            const resultsHeader = document.getElementById('results-header');
+            const resultsBody = document.getElementById('results-body');
+
+            resultsHeader.innerHTML = '';
+            resultsBody.innerHTML = '';
+
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                resultsHeader.appendChild(th);
+            });
+
+            results.forEach(row => {
+                const tr = document.createElement('tr');
+                row.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                resultsBody.appendChild(tr);
+            });
+
+            if (results.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = headers.length;
+                td.textContent = '未找到匹配的结果，请核实你的姓名和考号是否输入准确。';
+                tr.appendChild(td);
+                resultsBody.appendChild(tr);
+            }
+
+            message.textContent = '搜索完成。';
+        } catch (error) {
+            message.textContent = `发生错误: ${error.message}`;
+        }
+    }
+
+    function returnHome() {
+        window.location.href = 'https://sbjasz.github.io';
+    }
+
+    function calculateTop10Percent() {
+        const totalScores = csvData.slice(1)
+            .map(row => parseFloat(row[6]))
+            .filter(score => !isNaN(score));
+        totalScores.sort((a, b) => b - a);
+        const top10PercentCount = Math.ceil(totalScores.length * 0.1);
+        const top10PercentScores = totalScores.slice(0, top10PercentCount);
+        const averageTop10Percent = top10PercentScores.reduce((a, b) => a + b, 0) / top10PercentScores.length;
+
+        const resultPopup = document.getElementById('result-popup');
+        resultPopup.textContent = `前10%总分的平均数是: ${averageTop10Percent.toFixed(2)}`;
+        resultPopup.style.display = 'block';
+
+        setTimeout(() => {
+            resultPopup.style.display = 'none';
+        }, 3000);
+    }
+
+    function calculate2To12Percent() {
+        const totalScores = csvData.slice(1)
+            .map(row => parseFloat(row[6]))
+            .filter(score => !isNaN(score));
+        totalScores.sort((a, b) => b - a);
+        const totalCount = totalScores.length;
+        const startIndex = Math.ceil(totalCount * 0.88); // 88% of the length
+        const endIndex = Math.ceil(totalCount * 0.98); // 98% of the length
+        const subsetScores = totalScores.slice(startIndex, endIndex);
+        const average2To12Percent = subsetScores.reduce((a, b) => a + b, 0) / subsetScores.length;
+
+        const resultPopup212 = document.getElementById('result-popup-2-12');
+        resultPopup212.textContent = `总分后2%-12%的平均数是: ${average2To12Percent.toFixed(2)}`;
+        resultPopup212.style.display = 'block';
+
+        setTimeout(() => {
+            resultPopup212.style.display = 'none';
+        }, 3000);
+    }
+
+    function calculateCustomRange() {
+        const startPercent = document.getElementById('percent-input-start').value;
+        const endPercent = document.getElementById('percent-input-end').value;
+
+        // 检查输入是否为整数且在合理范围内
+        if (isNaN(startPercent) || isNaN(endPercent) ||
+            parseInt(startPercent) % 1 !== 0 || parseInt(endPercent) % 1 !== 0 ||
+            parseInt(startPercent) < 0 || parseInt(endPercent) > 100 ||
+            parseInt(startPercent) >= parseInt(endPercent)) {
+            const errorPopup = document.getElementById('error-popup');
+            errorPopup.textContent = '输入有误，请输入去掉百分号的百分数，例如前10%就在第一个框输入0，第二个框输入10，另请确保第一个框的内容小于第二个框，并且输入的内容不支持小数点';
+            errorPopup.style.display = 'block';
+
+            setTimeout(() => {
+                errorPopup.style.display = 'none';
+            }, 3000);
+            return;
+        }
+
+        const totalScores = csvData.slice(1)
+            .map(row => parseFloat(row[6]))
+            .filter(score => !isNaN(score));
+        totalScores.sort((a, b) => b - a);
+        const totalCount = totalScores.length;
+        const startIndex = Math.ceil(totalCount * (parseInt(startPercent) / 100));
+        const endIndex = Math.ceil(totalCount * (parseInt(endPercent) / 100));
+        const subsetScores = totalScores.slice(startIndex, endIndex);
+        const averageCustomRange = subsetScores.reduce((a, b) => a + b, 0) / subsetScores.length;
+
+        const customRangePopup = document.getElementById('custom-range-popup');
+        customRangePopup.textContent = `${startPercent}%到${endPercent}%区间总分的平均数是: ${averageCustomRange.toFixed(2)}`;
+        customRangePopup.style.display = 'block';
+
+        setTimeout(() => {
+            customRangePopup.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
