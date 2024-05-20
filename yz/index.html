@@ -22,7 +22,7 @@
             background-color: #f2f2f2;
         }
         /* 弹窗样式 */
-        #popup {
+        #popup, #result-popup {
             position: fixed;
             top: 0;
             left: 50%;
@@ -55,6 +55,7 @@
 <body>
 
 <div id="popup">源排名文件来自网络，本人进行整合处理，如有侵权请联系QQ：192797445删除</div>
+<div id="result-popup" style="display:none;"></div>
 
 <h1>【吉安一中】【2024高二下学期期中考试】【24年4月】</h1>
 <div>
@@ -71,9 +72,10 @@
     <tbody id="results-body"></tbody>
 </table>
 
-<!-- 添加返回主页按钮 -->
+<!-- 添加返回主页和计算总分按钮 -->
 <div>
     <button class="button" onclick="returnHome()">返回主页</button>
+    <button class="button" onclick="calculateTop10Percent()">计算总分前10%</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.js"></script>
@@ -146,6 +148,24 @@
 
     function returnHome() {
         window.location.href = 'https://sbjasz.github.io';
+    }
+
+    function calculateTop10Percent() {
+        const totalScores = csvData.slice(1)
+            .map(row => parseFloat(row[6]))
+            .filter(score => !isNaN(score));
+        totalScores.sort((a, b) => b - a);
+        const top10PercentCount = Math.ceil(totalScores.length * 0.1);
+        const top10PercentScores = totalScores.slice(0, top10PercentCount);
+        const averageTop10Percent = top10PercentScores.reduce((a, b) => a + b, 0) / top10PercentScores.length;
+
+        const resultPopup = document.getElementById('result-popup');
+        resultPopup.textContent = `前10%总分的平均数是: ${averageTop10Percent.toFixed(2)}`;
+        resultPopup.style.display = 'block';
+
+        setTimeout(() => {
+            resultPopup.style.display = 'none';
+        }, 3000);
     }
 </script>
 
