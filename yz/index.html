@@ -75,9 +75,8 @@
     <tbody id="results-body"></tbody>
 </table>
 
-<!-- 添加返回主页和计算总分按钮 -->
+<!-- 添加计算总分按钮 -->
 <div>
-    <button class="button" onclick="returnHome()">返回主页</button>
     <button class="button" onclick="calculateTop10Percent()">计算总分前10%</button>
     <button class="button" onclick="calculate2To12Percent()">计算总分后2%-12%</button>
 </div>
@@ -87,6 +86,11 @@
     <input type="text" id="percent-input-start" placeholder="开始百分数">
     <input type="text" id="percent-input-end" placeholder="结束百分数">
     <button class="button" onclick="calculateCustomRange()">计算总分自定义区间</button>
+</div>
+
+<!-- 返回主页按钮移动到页面底部 -->
+<div>
+    <button class="button" onclick="returnHome()">返回主页</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.0.0/crypto-js.js"></script>
@@ -229,7 +233,7 @@
         const averageCustomRange = subsetScores.reduce((a, b) => a + b, 0) / subsetScores.length;
 
         const customRangePopup = document.getElementById('custom-range-popup');
-        customRangePopup.textContent = `总分${startPercent}%至${endPercent}%区间的平均数是: ${averageCustomRange.toFixed(2)}`;
+        customRangePopup.textContent = `${startPercent}%到${endPercent}%区间总分的平均数是: ${averageCustomRange.toFixed(2)}`;
         customRangePopup.style.display = 'block';
 
         setTimeout(() => {
