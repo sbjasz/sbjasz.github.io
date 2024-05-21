@@ -60,7 +60,7 @@
 <div id="custom-range-popup" style="display:none;"></div>
 <div id="error-popup" style="display:none;"></div>
 
-<h1>【吉安三中】【2024高二下学期期中考试（上进）（文）】【24年4月】</h1>
+<h1>【吉安三中】【2024高二下学期期中考试（文）】【24年4月】</h1>
 <div>
     <input type="text" id="search-input-a" placeholder="姓名">
     <input type="text" id="search-input-b" placeholder="准考证号">
@@ -87,13 +87,12 @@
     <input type="text" id="percent-input-end" placeholder="结束百分数">
     <button class="button" onclick="calculateCustomRange()">计算总分自定义区间</button>
 </div>
-
+    
 <!-- 答案内容 -->
 <div>
     <a href="/da/lk/202404/G2/稳派" class="button">联考答案（考试结束|已公布）</a>
 </div>
-
-
+    
 <!-- 返回主页按钮移动到页面底部 -->
 <div>
     <button class="button" onclick="returnHome()">返回主页</button>
@@ -113,9 +112,19 @@
     // 解密密钥
     const secretKey = 'your-secret-key';
 
+    // 变量声明放在全局范围
+    let csvData;
+
     // 解密 CSV 数据
-    const decryptedCSVData = CryptoJS.AES.decrypt(encryptedCSVData, secretKey).toString(CryptoJS.enc.Utf8);
-    const csvData = decryptedCSVData.split('\n').map(row => row.split(','));
+    window.onload = function() {
+        const popup = document.getElementById('popup');
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 5000);
+
+        const decryptedCSVData = CryptoJS.AES.decrypt(encryptedCSVData, secretKey).toString(CryptoJS.enc.Utf8);
+        csvData = decryptedCSVData.split('\n').map(row => row.split(','));
+    };
 
     function searchCSV() {
         const searchTextA = document.getElementById('search-input-a').value;
@@ -233,13 +242,13 @@
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const totalCount = totalScores.length;
-        const startIndex = Math.ceil(totalCount * (parseInt(startPercent) / 100));
-        const endIndex = Math.ceil(totalCount * (parseInt(endPercent) / 100));
+        const startIndex = Math.ceil(totalCount * (startPercent / 100));
+        const endIndex = Math.ceil(totalCount * (endPercent / 100));
         const subsetScores = totalScores.slice(startIndex, endIndex);
         const averageCustomRange = subsetScores.reduce((a, b) => a + b, 0) / subsetScores.length;
 
         const customRangePopup = document.getElementById('custom-range-popup');
-        customRangePopup.textContent = `${startPercent}%到${endPercent}%区间总分的平均数是: ${averageCustomRange.toFixed(2)}`;
+        customRangePopup.textContent = `总分${startPercent}%至${endPercent}%的平均数是: ${averageCustomRange.toFixed(2)}`;
         customRangePopup.style.display = 'block';
 
         setTimeout(() => {
@@ -247,6 +256,5 @@
         }, 3000);
     }
 </script>
-
 </body>
 </html>
