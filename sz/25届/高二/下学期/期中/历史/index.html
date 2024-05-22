@@ -50,6 +50,15 @@
             border: none;
             border-radius: 4px;
         }
+        .collapsible-content {
+            display: none;
+            margin-top: 10px;
+        }
+        .toggle-link {
+            color: gray;
+            cursor: pointer;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -75,24 +84,29 @@
     <tbody id="results-body"></tbody>
 </table>
 
-<!-- 添加计算总分按钮 -->
+<!-- 折叠内容的容器 -->
 <div>
-    <button class="button" onclick="calculateTop10Percent()">计算总分前10%</button>
-    <button class="button" onclick="calculate2To12Percent()">计算总分后2%-12%</button>
+    <span class="toggle-link" onclick="toggleCollapsibleContent()">展开</span>
+    <div id="collapsible-content" class="collapsible-content">
+        <div>
+            <button class="button" onclick="calculateTop10Percent()">计算总分前10%</button>
+            <button class="button" onclick="calculate2To12Percent()">计算总分后2%-12%</button>
+        </div>
+
+        <!-- 添加计算总分自定义区间按钮和输入框 -->
+        <div>
+            <input type="text" id="percent-input-start" placeholder="开始百分数">
+            <input type="text" id="percent-input-end" placeholder="结束百分数">
+            <button class="button" onclick="calculateCustomRange()">计算总分自定义区间</button>
+        </div>
+        
+        <!-- 答案内容 -->
+        <div>
+            <a href="/da/lk/202404/G2/稳派" class="button">联考答案（考试结束|已公布）</a>
+        </div>
+    </div>
 </div>
 
-<!-- 添加计算总分自定义区间按钮和输入框 -->
-<div>
-    <input type="text" id="percent-input-start" placeholder="开始百分数">
-    <input type="text" id="percent-input-end" placeholder="结束百分数">
-    <button class="button" onclick="calculateCustomRange()">计算总分自定义区间</button>
-</div>
-    
-<!-- 答案内容 -->
-<div>
-    <a href="/da/lk/202404/G2/稳派" class="button">联考答案（考试结束|已公布）</a>
-</div>
-    
 <!-- 返回主页按钮移动到页面底部 -->
 <div>
     <button class="button" onclick="returnHome()">返回主页</button>
@@ -254,6 +268,18 @@
         setTimeout(() => {
             customRangePopup.style.display = 'none';
         }, 3000);
+    }
+
+    function toggleCollapsibleContent() {
+        const collapsibleContent = document.getElementById('collapsible-content');
+        const toggleLink = document.querySelector('.toggle-link');
+        if (collapsibleContent.style.display === 'none') {
+            collapsibleContent.style.display = 'block';
+            toggleLink.textContent = '折叠';
+        } else {
+            collapsibleContent.style.display = 'none';
+            toggleLink.textContent = '展开';
+        }
     }
 </script>
 </body>
