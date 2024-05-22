@@ -82,11 +82,17 @@
             color: #000;
             margin-top: 10px;
         }
+        .green-button {
+            background-color: #28a745;
+        }
+        .green-button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">其他内容</h1>
+        <h1 class="title">其他</h1>
         <p class="footer-text">项目开源地址：<a href="https://github.com/sbjasz/sbjasz.github.io">https://github.com/sbjasz/sbjasz.github.io</a></p>
         
         <div>
@@ -106,11 +112,11 @@
             <h2>用户协议&免责声明</h2>
             <p>访问本站即代表您同意我们的用户协议和免责声明。</p>
             <a href="Disclaimer.html" class="button popup-button">阅读用户协议&免责声明</a>
-            <button class="button popup-button" onclick="closePopup()">我已阅读并同意</button>
+            <button class="button popup-button green-button" onclick="closePopup()">我已阅读并同意</button>
         </div>
     </div>
 
-    <a href="/Disclaimer.html" class="disclaimer-link">免责声明</a>
+    <a href="Disclaimer.html" class="disclaimer-link">免责声明</a>
 
     <script>
         function closePopup() {
