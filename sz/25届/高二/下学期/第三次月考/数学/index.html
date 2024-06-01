@@ -69,7 +69,7 @@
 <div id="custom-range-popup" style="display:none;"></div>
 <div id="error-popup" style="display:none;"></div>
 
-<h1>【吉安三中】【2024高二下学期5月金太阳（数学）】【24年5月】</h1>
+<h1>【吉安三中】【2024高二下学期第三次月考（数学）】</h1>
 <div>
     <input type="text" id="search-input-a" placeholder="姓名">
     <input type="text" id="search-input-b" placeholder="准考证号">
@@ -102,7 +102,7 @@
         
         <!-- 答案内容 -->
         <div>
-            <a href="/da/lk/202404/G2/金太阳" class="button">联考答案（考试结束|已公布）</a>
+            <a href="/da/lk/202404/G2/稳派" class="button">联考答案（考试结束|已公布）</a>
         </div>
     </div>
 </div>
@@ -149,8 +149,8 @@
         try {
             const headers = csvData[0];
             const results = csvData.slice(1).filter(row => 
-                row[3] && row[3] === searchTextA &&
-                row[2] && row[2] === searchTextB
+                row[2] && row[2] === searchTextA && // 姓名在第三列
+                row[1] && row[1] === searchTextB   // 准考证号在第二列
             );
 
             const resultsHeader = document.getElementById('results-header');
@@ -196,7 +196,7 @@
 
     function calculateTop10Percent() {
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[7]))
+            .map(row => parseFloat(row[5])) // 总分在第六列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const top10PercentCount = Math.ceil(totalScores.length * 0.1);
@@ -214,7 +214,7 @@
 
     function calculate2To12Percent() {
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[7]))
+            .map(row => parseFloat(row[5])) // 总分在第六列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const totalCount = totalScores.length;
@@ -252,7 +252,7 @@
         }
 
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[7]))
+            .map(row => parseFloat(row[5])) // 总分在第六列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const totalCount = totalScores.length;
