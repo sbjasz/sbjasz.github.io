@@ -156,8 +156,8 @@
         try {
             const headers = csvData[0];
             const results = csvData.slice(1).filter(row => 
-                row[2] && row[2] === searchTextA && // 姓名在第三列
-                row[1] && row[1] === searchTextB   // 准考证号在第二列
+                row[3] && row[3] === searchTextA && // 姓名在第4列
+                row[4] && row[4] === searchTextB   // 准考证号在第5列
             );
 
             const resultsHeader = document.getElementById('results-header');
@@ -203,7 +203,7 @@
 
     function calculateTop10Percent() {
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[5])) // 总分在第六列
+            .map(row => parseFloat(row[6])) // 总分在第7列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const top10PercentCount = Math.ceil(totalScores.length * 0.1);
@@ -221,7 +221,7 @@
 
     function calculate2To12Percent() {
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[5])) // 总分在第六列
+            .map(row => parseFloat(row[6])) // 总分在第7列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const totalCount = totalScores.length;
@@ -259,7 +259,7 @@
         }
 
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[5])) // 总分在第六列
+            .map(row => parseFloat(row[6])) // 总分在第7列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const totalCount = totalScores.length;
@@ -290,7 +290,7 @@
             return;
         }
 
-        const scores = csvData.slice(1).map(row => parseFloat(row[5])).filter(score => !isNaN(score));
+        const scores = csvData.slice(1).map(row => parseFloat(row[6])).filter(score => !isNaN(score));
         const exactMatchCount = scores.filter(score => score === scoreInput).length;
         const rangeMatchCount = scores.filter(score => Math.abs(score - scoreInput) <= 5).length;
 
