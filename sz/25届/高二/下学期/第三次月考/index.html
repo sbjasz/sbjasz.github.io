@@ -1,36 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>成绩查询网页</title>
-    <p>项目开源地址：https://github.com/sbjasz/sbjasz.github.io</p>
+    <title>查询系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
-        .title {
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .result-table {
+            margin-bottom: 30px;
+        }
+        .file-title {
             font-weight: bold;
-            color: black;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .button:hover {
-            background-color: #0056b3;
+            margin-top: 20px;
         }
     </style>
+    <script>
+        // 定义解密函数
+        function decryptData(encryptedText, key) {
+            let bytes = CryptoJS.AES.decrypt(encryptedText, key);
+            let decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+            return decryptedData;
+        }
+
+        // 读取并解密文件内容
+        async function fetchAndDecryptFiles(key) {
+            let fileNames = ['encrypted-语文_小题分.js', 'encrypted-数学_小题分.js', 'encrypted-英语_小题分.js', 'encrypted-物理_小题分.js', 'encrypted-化学_小题分.js', 'encrypted-政治_小题分.js', 'encrypted-历史_小题分.js', 'encrypted-地理A2_小题分.js', 'encrypted-生物_小题分.js', 'encrypted-小语种_小题分.js'];  // 列出所有的加密文件名
+            let decryptedDataList = [];
+
+            for (let fileName of fileNames) {
+                try {
+                    let response = await fetch(fileName);
+                    let text = await response.text();
+                    let encryptedText = text.match(/const encryptedCSVData = "(.*)";/)[1];  // 提取加密字符串
+                    let decryptedData = decryptData(encryptedText, key);
+                    decryptedDataList.push({ fileName, decryptedData });
+                } catch (error) {
+                    console.error(`Failed to load or decrypt file ${fileName}:`, error);
+                }
+            }
+
+            return decryptedDataList;
+        }
+
+        // 查询功能
+        async function queryData() {
+            let name = document.getElementById("name").value;
+            let examNumber = document.getElementById("examNumber").value;
+            let key = "your-secret-key";  // 替换为实际的密钥
+
+            let decryptedDataList = await fetchAndDecryptFiles(key);
+            let resultArea = document.getElementById("result");
+
+            resultArea.innerHTML = "";  // 清空之前的结果
+
+            for (let { fileName, decryptedData } of decryptedDataList) {
+                let lines = decryptedData.split("\n");
+                let tableHtml = `<div class="file-title">${fileName}</div><table class="result-table"><thead><tr>`;
+                let headers = lines[0].split(",");
+                headers.forEach(header => {
+                    tableHtml += `<th>${header}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+
+                // 显示前两行内容
+                for (let i = 0; i < Math.min(2, lines.length); i++) {
+                    let columns = lines[i].split(",");
+                    tableHtml += "<tr>";
+                    columns.forEach(column => {
+                        tableHtml += `<td>${column}</td>`;
+                    });
+                    tableHtml += "</tr>";
+                }
+
+                let matched = false;
+                for (let i = 2; i < lines.length; i++) {  // 从第3行开始查找匹配项
+                    let columns = lines[i].split(",");
+                    if (columns.length > 2 && columns[1] === examNumber && columns[2] === name) {
+                        tableHtml += "<tr>";
+                        columns.forEach(column => {
+                            tableHtml += `<td>${column}</td>`;
+                        });
+                        tableHtml += "</tr>";
+                        matched = true;
+                    }
+                }
+
+                tableHtml += "</tbody></table>";
+                resultArea.innerHTML += tableHtml;
+
+                if (!matched) {
+                    resultArea.innerHTML += "<p>没有找到匹配的记录。</p>";
+                }
+            }
+        }
+    </script>
 </head>
 <body>
-    <p>等待文件上传......</p>
-    <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=BDdVq24lQlEP1l66PT0NVgQdrwHuD4ch&authKey=OWrQkSuhenRnEBk%2BssKlisGBgNFPLelWvppFAKgmaDdGR4B5kqesK9GkWMmCheNZ&noverify=0&group_code=961288970" class="button">加群讨论更多</a>
+    <h1>查询系统</h1>
+    <label for="name">姓名：</label>
+    <input type="text" id="name" name="name"><br>
+    <label for="examNumber">准考证号：</label>
+    <input type="text" id="examNumber" name="examNumber"><br>
+    <button onclick="queryData()">查询</button>
+    <div id="result"></div>
 </body>
 </html>
