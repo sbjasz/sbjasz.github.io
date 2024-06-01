@@ -22,7 +22,7 @@
             background-color: #f2f2f2;
         }
         /* 弹窗样式 */
-        #popup, #result-popup, #result-popup-2-12, #custom-range-popup, #error-popup {
+        #popup, #result-popup, #result-popup-2-12, #custom-range-popup, #error-popup, #score-match-popup {
             position: fixed;
             top: 0;
             left: 50%;
@@ -68,6 +68,7 @@
 <div id="result-popup-2-12" style="display:none;"></div>
 <div id="custom-range-popup" style="display:none;"></div>
 <div id="error-popup" style="display:none;"></div>
+<div id="score-match-popup" style="display:none;"></div>
 
 <h1>【吉安三中】【2024高二下学期期中考试】【24年4月】</h1>
 <div>
@@ -98,6 +99,12 @@
             <input type="text" id="percent-input-start" placeholder="开始百分数">
             <input type="text" id="percent-input-end" placeholder="结束百分数">
             <button class="button" onclick="calculateCustomRange()">计算总分自定义区间</button>
+        </div>
+
+        <!-- 添加同分数人数查询功能 -->
+        <div>
+            <input type="text" id="score-input" placeholder="输入分数">
+            <button class="button" onclick="calculateScoreMatch()">查询同分数人数</button>
         </div>
         
         <!-- 答案内容 -->
@@ -149,8 +156,8 @@
         try {
             const headers = csvData[0];
             const results = csvData.slice(1).filter(row => 
-                row[3] && row[3] === searchTextA &&
-                row[4] && row[4] === searchTextB
+                row[2] && row[2] === searchTextA && // 姓名在第三列
+                row[1] && row[1] === searchTextB   // 准考证号在第二列
             );
 
             const resultsHeader = document.getElementById('results-header');
@@ -196,7 +203,7 @@
 
     function calculateTop10Percent() {
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[6]))
+            .map(row => parseFloat(row[5])) // 总分在第六列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const top10PercentCount = Math.ceil(totalScores.length * 0.1);
@@ -214,7 +221,7 @@
 
     function calculate2To12Percent() {
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[6]))
+            .map(row => parseFloat(row[5])) // 总分在第六列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const totalCount = totalScores.length;
@@ -223,12 +230,12 @@
         const subsetScores = totalScores.slice(startIndex, endIndex);
         const average2To12Percent = subsetScores.reduce((a, b) => a + b, 0) / subsetScores.length;
 
-        const resultPopup212 = document.getElementById('result-popup-2-12');
-        resultPopup212.textContent = `总分后2%-12%的平均数是: ${average2To12Percent.toFixed(2)}`;
-        resultPopup212.style.display = 'block';
+        const resultPopup = document.getElementById('result-popup-2-12');
+        resultPopup.textContent = `总分后2%-12%的平均数是: ${average2To12Percent.toFixed(2)}`;
+        resultPopup.style.display = 'block';
 
         setTimeout(() => {
-            resultPopup212.style.display = 'none';
+            resultPopup.style.display = 'none';
         }, 3000);
     }
 
@@ -252,7 +259,7 @@
         }
 
         const totalScores = csvData.slice(1)
-            .map(row => parseFloat(row[6]))
+            .map(row => parseFloat(row[5])) // 总分在第六列
             .filter(score => !isNaN(score));
         totalScores.sort((a, b) => b - a);
         const totalCount = totalScores.length;
@@ -268,6 +275,32 @@
         setTimeout(() => {
             customRangePopup.style.display = 'none';
         }, 3000);
+    }
+
+    function calculateScoreMatch() {
+        const scoreInput = parseFloat(document.getElementById('score-input').value);
+        if (isNaN(scoreInput)) {
+            const errorPopup = document.getElementById('error-popup');
+            errorPopup.textContent = '请输入有效的分数';
+            errorPopup.style.display = 'block';
+
+            setTimeout(() => {
+                errorPopup.style.display = 'none';
+            }, 3000);
+            return;
+        }
+
+        const scores = csvData.slice(1).map(row => parseFloat(row[5])).filter(score => !isNaN(score));
+        const exactMatchCount = scores.filter(score => score === scoreInput).length;
+        const rangeMatchCount = scores.filter(score => Math.abs(score - scoreInput) <= 5).length;
+
+        const scoreMatchPopup = document.getElementById('score-match-popup');
+        scoreMatchPopup.textContent = `处于${scoreInput}分数的一共有${exactMatchCount}人，处于${scoreInput}分数±5的一共有${rangeMatchCount}人。`;
+        scoreMatchPopup.style.display = 'block';
+
+        setTimeout(() => {
+            scoreMatchPopup.style.display = 'none';
+        }, 5000);
     }
 
     function toggleCollapsibleContent() {
