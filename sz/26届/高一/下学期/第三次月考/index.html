@@ -39,7 +39,7 @@
             const doc = parser.parseFromString(text, 'text/html');
             const links = Array.from(doc.querySelectorAll('a'))
                 .map(link => link.href)
-                .filter(link => link.includes('encrypted-data') && link.endsWith('.js'));
+                .filter(link => link.includes('encrypt') && link.endsWith('.js'));
 
             const decryptedData = [];
             
