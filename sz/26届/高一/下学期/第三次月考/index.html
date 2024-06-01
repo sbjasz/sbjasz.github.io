@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <title>查询系统</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .result-table {
+            margin-bottom: 30px;
+        }
+        .file-title {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
     <script>
         // 定义解密函数
         function decryptData(encryptedText, key) {
@@ -14,7 +36,7 @@
 
         // 读取并解密文件内容
         async function fetchAndDecryptFiles(key) {
-            let fileNames = ['encrypted-语文_小题分.js','encrypted-数学_小题分.js','encrypted-英语_小题分.js','encrypted-物理_小题分.js','encrypted-化学_小题分.js','encrypted-政治_小题分.js','encrypted-历史_小题分.js','encrypted-地理A2_小题分.js','encrypted-生物_小题分.js','encrypted-小语种_小题分.js'];  // 列出所有的加密文件名
+            let fileNames = ['encrypted-语文_小题分.js', 'encrypted-数学_小题分.js', 'encrypted-英语_小题分.js', 'encrypted-物理_小题分.js', 'encrypted-化学_小题分.js', 'encrypted-政治_小题分.js', 'encrypted-历史_小题分.js', 'encrypted-地理A2_小题分.js', 'encrypted-生物_小题分.js', 'encrypted-小语种_小题分.js'];  // 列出所有的加密文件名
             let decryptedDataList = [];
 
             for (let fileName of fileNames) {
@@ -23,7 +45,7 @@
                     let text = await response.text();
                     let encryptedText = text.match(/const encryptedCSVData = "(.*)";/)[1];  // 提取加密字符串
                     let decryptedData = decryptData(encryptedText, key);
-                    decryptedDataList.push(decryptedData);
+                    decryptedDataList.push({ fileName, decryptedData });
                 } catch (error) {
                     console.error(`Failed to load or decrypt file ${fileName}:`, error);
                 }
@@ -43,18 +65,44 @@
 
             resultArea.innerHTML = "";  // 清空之前的结果
 
-            for (let data of decryptedDataList) {
-                let lines = data.split("\n");
-                for (let line of lines) {
-                    let columns = line.split(",");
+            for (let { fileName, decryptedData } of decryptedDataList) {
+                let lines = decryptedData.split("\n");
+                let tableHtml = `<div class="file-title">${fileName}</div><table class="result-table"><thead><tr>`;
+                let headers = lines[0].split(",");
+                headers.forEach(header => {
+                    tableHtml += `<th>${header}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody>`;
+
+                // 显示前两行内容
+                for (let i = 0; i < Math.min(2, lines.length); i++) {
+                    let columns = lines[i].split(",");
+                    tableHtml += "<tr>";
+                    columns.forEach(column => {
+                        tableHtml += `<td>${column}</td>`;
+                    });
+                    tableHtml += "</tr>";
+                }
+
+                let matched = false;
+                for (let i = 2; i < lines.length; i++) {  // 从第3行开始查找匹配项
+                    let columns = lines[i].split(",");
                     if (columns.length > 2 && columns[1] === examNumber && columns[2] === name) {
-                        resultArea.innerHTML += `<p>${line}</p>`;
+                        tableHtml += "<tr>";
+                        columns.forEach(column => {
+                            tableHtml += `<td>${column}</td>`;
+                        });
+                        tableHtml += "</tr>";
+                        matched = true;
                     }
                 }
-            }
 
-            if (resultArea.innerHTML === "") {
-                resultArea.innerHTML = "<p>没有找到匹配的记录。</p>";
+                tableHtml += "</tbody></table>";
+                resultArea.innerHTML += tableHtml;
+
+                if (!matched) {
+                    resultArea.innerHTML += "<p>没有找到匹配的记录。</p>";
+                }
             }
         }
     </script>
