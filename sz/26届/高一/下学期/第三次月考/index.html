@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypted Data Query</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin: 20px;
+        }
+        input {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Encrypted Data Query</h1>
+        <label for="name">姓名:</label>
+        <input type="text" id="name">
+        <label for="id">准考证号:</label>
+        <input type="text" id="id">
+        <button onclick="queryData()">查询</button>
+        <pre id="result"></pre>
+    </div>
+
+    <script>
+        const secretKey = 'your-secret-key';
+        const resultElement = document.getElementById('result');
+
+        async function fetchAndDecryptFiles() {
+            const response = await fetch('./');  // Fetch the directory listing
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const links = Array.from(doc.querySelectorAll('a'))
+                .map(link => link.href)
+                .filter(link => link.includes('encrypted-data') && link.endsWith('.js'));
+
+            const decryptedData = [];
+            
+            for (const link of links) {
+                const scriptResponse = await fetch(link);
+                const scriptText = await scriptResponse.text();
+                const encryptedMatch = scriptText.match(/const encryptedCSVData = "([^"]+)";/);
+                
+                if (encryptedMatch) {
+                    const encryptedCSVData = encryptedMatch[1];
+                    const decrypted = CryptoJS.AES.decrypt(encryptedCSVData, secretKey);
+                    const csvText = decrypted.toString(CryptoJS.enc.Utf8);
+                    decryptedData.push(csvText);
+                }
+            }
+            return decryptedData;
+        }
+
+        async function queryData() {
+            const name = document.getElementById('name').value.trim();
+            const id = document.getElementById('id').value.trim();
+
+            if (!name || !id) {
+                alert('请填写姓名和准考证号');
+                return;
+            }
+
+            const decryptedData = await fetchAndDecryptFiles();
+            let result = '';
+
+            decryptedData.forEach(data => {
+                const rows = data.split('\n');
+                rows.forEach(row => {
+                    const columns = row.split(',');
+                    if (columns[1] && columns[2] && columns[1].trim() === id && columns[2].trim() === name) {
+                        result += row + '\n';
+                    }
+                });
+            });
+
+            resultElement.textContent = result || '未找到匹配的记录';
+        }
+
+        // Fetch and decrypt files on page load
+        document.addEventListener('DOMContentLoaded', fetchAndDecryptFiles);
+    </script>
+</body>
+</html>
