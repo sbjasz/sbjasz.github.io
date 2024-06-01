@@ -25,6 +25,26 @@
             font-weight: bold;
             margin-top: 20px;
         }
+        .return-button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .return-button:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+        }
     </style>
     <script>
         // 定义解密函数
@@ -43,9 +63,14 @@
                 try {
                     let response = await fetch(fileName);
                     let text = await response.text();
-                    let encryptedText = text.match(/const encryptedCSVData = "(.*)";/)[1];  // 提取加密字符串
-                    let decryptedData = decryptData(encryptedText, key);
-                    decryptedDataList.push({ fileName, decryptedData });
+                    let match = text.match(/const encryptedCSVData = "(.*)";/);
+                    if (match && match[1]) {
+                        let encryptedText = match[1];
+                        let decryptedData = decryptData(encryptedText, key);
+                        decryptedDataList.push({ fileName, decryptedData });
+                    } else {
+                        console.error(`Invalid format in file ${fileName}`);
+                    }
                 } catch (error) {
                     console.error(`Failed to load or decrypt file ${fileName}:`, error);
                 }
@@ -56,8 +81,8 @@
 
         // 查询功能
         async function queryData() {
-            let name = document.getElementById("name").value;
-            let examNumber = document.getElementById("examNumber").value;
+            let name = document.getElementById("name").value.trim();
+            let examNumber = document.getElementById("examNumber").value.trim();
             let key = "your-secret-key";  // 替换为实际的密钥
 
             let decryptedDataList = await fetchAndDecryptFiles(key);
@@ -87,7 +112,7 @@
                 let matched = false;
                 for (let i = 2; i < lines.length; i++) {  // 从第3行开始查找匹配项
                     let columns = lines[i].split(",");
-                    if (columns.length > 2 && columns[1] === examNumber && columns[2] === name) {
+                    if (columns.length > 2 && columns[1].trim() === examNumber && columns[2].trim() === name) {
                         tableHtml += "<tr>";
                         columns.forEach(column => {
                             tableHtml += `<td>${column}</td>`;
@@ -115,5 +140,8 @@
     <input type="text" id="examNumber" name="examNumber"><br>
     <button onclick="queryData()">查询</button>
     <div id="result"></div>
+    <footer>
+        <a href="https://sbjasz.github.io" class="return-button">返回主页</a>
+    </footer>
 </body>
 </html>
